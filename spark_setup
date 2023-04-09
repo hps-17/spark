@@ -1,0 +1,21 @@
+tep 1: Download the java, hadoop and spark and place in under home path
+
+Step 2: Add the below paramter to bashrc file under home path.
+
+export  JAVA_HOME=/home/hari/workspace/jdk1.8.0_361
+
+export  SPARK_HOME=/home/hari/workspace/spark-3.2.3-bin-hadoop2.7
+
+export  HADOOP_HOME=/home/hari/workspace/hadoop-2.10.2
+
+export  PATH=JAVA_HOME/bin:$HADOOP_HOME/bin:$SPARK_HOME/bin:$PATH
+
+step 3: source the bashrc file
+
+hari@hps17:~$ source .bashrc
+Welcome!!
+
+Step 4: Daemon process 
+
+
+https://github.com/atozknowledge/bigdata/wiki/Hadoop-Single-Node-Installation

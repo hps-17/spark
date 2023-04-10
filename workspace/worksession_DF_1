@@ -1,0 +1,124 @@
+##################################################
+#Work session 1: DataFrame operation
+#Datset: Flight delay
+#Summary:
+##################################################
+
+flight_dataset="/home/hari/workspace/databricks-datasets/learning-spark-v2/flights/departuredelays.csv"
+
+schema="date STRING, delay INT, distance INT, origin STRING, destination STRING"
+
+df1=(spark.read.format("csv").option("header","true").option("schema","schema").load(flight_dataset))
+
+df1.show()
++--------+-----+--------+------+-----------+
+|    date|delay|distance|origin|destination|
++--------+-----+--------+------+-----------+
+|01011245|    6|     602|   ABE|        ATL|
+|01020600|   -8|     369|   ABE|        DTW|
+|01021245|   -2|     602|   ABE|        ATL|
+|01020605|   -4|     602|   ABE|        ATL|
+|01031245|   -4|     602|   ABE|        ATL|
+|01030605|    0|     602|   ABE|        ATL|
+|01041243|   10|     602|   ABE|        ATL|
+|01040605|   28|     602|   ABE|        ATL|
+|01051245|   88|     602|   ABE|        ATL|
+|01050605|    9|     602|   ABE|        ATL|
+|01061215|   -6|     602|   ABE|        ATL|
+|01061725|   69|     602|   ABE|        ATL|
+|01061230|    0|     369|   ABE|        DTW|
+|01060625|   -3|     602|   ABE|        ATL|
+|01070600|    0|     369|   ABE|        DTW|
+|01071725|    0|     602|   ABE|        ATL|
+|01071230|    0|     369|   ABE|        DTW|
+|01070625|    0|     602|   ABE|        ATL|
+|01071219|    0|     569|   ABE|        ORD|
+|01080600|    0|     369|   ABE|        DTW|
++--------+-----+--------+------+-----------+
+
+
+#Renaming a existing column:
+
+df2=df1.withColumnRenamed("delay","delayinMins")
+
+df2.printSchema()
+root
+ |-- date: string (nullable = true)
+ |-- delayinMins: string (nullable = true)
+ |-- distance: string (nullable = true)
+ |-- origin: string (nullable = true)
+ |-- destination: string (nullable = true)
+
+# "MM-dd-yyyy HH mm ss SSS"
+
+df1.withColumn("date", to_timestamp(col("date"),"MMddhhmm")).show()
+#Drop a column, rename a column and convert a column
+
+(df1.withColumn("date", to_timestamp(col("date"),"MMddhhmm"))
+... .drop("delay")
+... .withColumnRenamed("distance","distanceInMiles")
+... .show())
+
++-------------------+---------------+------+-----------+
+|               date|distanceInMiles|origin|destination|
++-------------------+---------------+------+-----------+
+|1970-01-01 00:45:00|            602|   ABE|        ATL|
+|1970-01-02 06:00:00|            369|   ABE|        DTW|
+|1970-01-02 00:45:00|            602|   ABE|        ATL|
+|1970-01-02 06:05:00|            602|   ABE|        ATL|
+|1970-01-03 00:45:00|            602|   ABE|        ATL|
+|1970-01-03 06:05:00|            602|   ABE|        ATL|
+|1970-01-04 00:43:00|            602|   ABE|        ATL|
+|1970-01-04 06:05:00|            602|   ABE|        ATL|
+|1970-01-05 00:45:00|            602|   ABE|        ATL|
+|1970-01-05 06:05:00|            602|   ABE|        ATL|
+|1970-01-06 00:15:00|            602|   ABE|        ATL|
+|               null|            602|   ABE|        ATL|
+|1970-01-06 00:30:00|            369|   ABE|        DTW|
+|1970-01-06 06:25:00|            602|   ABE|        ATL|
+|1970-01-07 06:00:00|            369|   ABE|        DTW|
+|               null|            602|   ABE|        ATL|
+|1970-01-07 00:30:00|            369|   ABE|        DTW|
+|1970-01-07 06:25:00|            602|   ABE|        ATL|
+|1970-01-07 00:19:00|            569|   ABE|        ORD|
+|1970-01-08 06:00:00|            369|   ABE|        DTW|
++-------------------+---------------+------+-----------+
+
+df3=(df1.withColumn("date", to_timestamp(col("date"),"MMddhhmm"))
+	  .withColumnRenamed("distance","distanceInMiles"))
+
+
+# Use group by and count function
+
+(df3.select("date","origin")
+... .groupBy("origin")
+... .count()
+... .orderBy("count",ascending=True)
+... .show())
++------+-----+                                                                  
+|origin|count|
++------+-----+
+|   GFK|    3|
+|   MQT|   77|
+|   GUM|   90|
+|   ADQ|  132|
+|   DBQ|  153|
+|   LSE|  154|
+|   CDC|  154|
+|   AZO|  158|
+|   SCE|  167|
+|   ALO|  167|
+|   SUX|  167|
+|   OME|  177|
+|   OTZ|  177|
+|   YAK|  178|
+|   CDV|  178|
+|   COD|  179|
+|   PSG|  180|
+|   BTM|  180|
+|   WRG|  180|
+|   SWF|  180|
++------+-----+
+
+#
+
